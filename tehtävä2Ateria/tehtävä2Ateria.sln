@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34607.119
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tehtävä2Ateria", "tehtävä2Ateria.csproj", "{92F52BE2-B822-4EFA-8CCC-68C5F00A59AD}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{92F52BE2-B822-4EFA-8CCC-68C5F00A59AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{92F52BE2-B822-4EFA-8CCC-68C5F00A59AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{92F52BE2-B822-4EFA-8CCC-68C5F00A59AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{92F52BE2-B822-4EFA-8CCC-68C5F00A59AD}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {658A6B8A-2683-43E1-949A-04F4AC71F8E1}
+	EndGlobalSection
+EndGlobal
