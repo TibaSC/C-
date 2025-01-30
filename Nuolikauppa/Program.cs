@@ -1,33 +1,23 @@
 ﻿namespace Nuolikauppa
 {
 
-    
+
     internal class Program
     {
 
 
-        // TODO : Tee konstruktori
-        private float puu = 3;
-        private float teräs = 5;
-        private float timantti = 50;
-        private float Lehti = 0;
-        private float kanansulka = 1;
-        private float kotkansulka = 5;
-        // TODO : Tee PalautaHinta metodi
-
-
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
 
             Console.WriteLine("Tervetuloa nuolikauppaan, millaisen nuolen haluat");
             KärkiMateriaali valittuKärki;
             while (true)
             {
-                Console.WriteLine("Minkälainen kärki");
+                Console.WriteLine("Minkälainen kärki (puu, teräs vai timantti)? ");
                 string? vastaus = Console.ReadLine();
                 if (vastaus.ToLower() == "puu")
                 {
-                    valittuKärki= KärkiMateriaali.Puu;
+                    valittuKärki = KärkiMateriaali.Puu;
                     break;
                 }
                 else if (vastaus.ToLower() == "teräs")
@@ -45,7 +35,7 @@
             SulkaMateriaali valittuSulka;
             while (true)
             {
-                Console.WriteLine("Minkälaiset sulat");
+                Console.WriteLine("Minkälaiset sulat (lehti, kanansulka vai kotkansulka)?");
                 string? vastaus = Console.ReadLine();
                 if (vastaus.ToLower() == "lehti")
                 {
@@ -63,9 +53,25 @@
                     break;
                 }
             }
-            // Kysy nuolen k'rki, sulka ja pituus
-            // Kysy pituutta uudestaan jos se on < 60 || > 100
-            // Tulosta nuolen hinta
+
+            sbyte pituusCm;
+            while (true)
+            {
+                Console.WriteLine("Nuolen pituus (60-100cm): ");
+
+                pituusCm = sbyte.Parse(Console.ReadLine());
+                if (pituusCm >= 60 && pituusCm <= 100)
+                {
+                    break;
+                }
+                
+            }
+            Nuoli nuoli = new Nuoli(valittuKärki, valittuSulka, pituusCm);
+            float hinta = nuoli.AnnaHinta();
+
+            Console.WriteLine($"Nuoli hinta on: {hinta} kultaa.");
         }
     }
 }
+
+

@@ -13,20 +13,42 @@
         Kanansulka,
         Kotkansulka
     }
-    
+
     internal class Nuoli
-    { 
-        public int AnnaHinta()
+    {
+        sbyte pituusCm;
+        SulkaMateriaali Sulka;
+        KärkiMateriaali Kärki;
+
+        // tee konstruktori
+        public Nuoli(KärkiMateriaali kärki, SulkaMateriaali sulka, float pituusCm)
         {
 
+            this.Kärki = kärki;
+            this.Sulka = sulka;
+            this.pituusCm = (sbyte)pituusCm;
         }
-        // TODO : Tee konstruktori
-        private float puu = 3;
-        private float teräs = 5;
-        private float timantti = 50;
-        private float Lehti = 0;
-        private float kanansulka = 1;
-        private float kotkansulka = 5;
-        // TODO : Tee PalautaHinta metodi
+
+        public float AnnaHinta()
+        {
+            float hinta = 0;
+            hinta += Kärki switch
+            {
+                KärkiMateriaali.Puu => 3,
+                KärkiMateriaali.Teräs => 5,
+                KärkiMateriaali.Timantti => 50,
+            };
+            hinta += Sulka switch
+            {
+                SulkaMateriaali.Kanansulka => 1,
+                SulkaMateriaali.Kotkansulka => 5,
+                SulkaMateriaali.Lehti => 0
+            };
+            hinta += pituusCm * 0.05f;
+
+            return hinta;
+        }
+
+
     }
 }
