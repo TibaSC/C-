@@ -16,9 +16,9 @@
 
     internal class Nuoli
     {
-        sbyte pituusCm;
-        SulkaMateriaali Sulka;
-        KärkiMateriaali Kärki;
+        private sbyte pituusCm;
+        private SulkaMateriaali Sulka;
+        private KärkiMateriaali Kärki;
 
         // tee konstruktori
         public Nuoli(KärkiMateriaali kärki, SulkaMateriaali sulka, float pituusCm)
@@ -29,6 +29,9 @@
             this.pituusCm = (sbyte)pituusCm;
         }
 
+        public sbyte GetPituus() => pituusCm;
+        public SulkaMateriaali GetSulka() => Sulka;
+        public KärkiMateriaali GetKärki() => Kärki;
         public float AnnaHinta()
         {
             float hinta = 0;
