@@ -1,4 +1,8 @@
-﻿namespace Seikkailijanreppu
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Seikkailijanreppu
 {
     public abstract class Tavara
     {
@@ -13,12 +17,36 @@
             Tilavuus = tilavuus;
         }
     }
-    public class Nuoli : Tavara { public Nuoli() : base(0.1, 0.05) { } }
-    public class Jousi : Tavara { public Jousi() : base(1, 4) { } }
-    public class Köysi : Tavara { public Köysi() : base(1, 1.5) { } }
-    public class Vesi : Tavara { public Vesi() : base(2, 2) { } }
-    public class RuokaAnnos : Tavara { public RuokaAnnos() : base(1, 0.5) { } }
-    public class Miekka : Tavara { public Miekka() : base(5, 3) { } }
+    public class Nuoli : Tavara 
+    { 
+        public Nuoli() : base(0.1, 0.05) { }
+        public override string ToString() => "Nuoli";
+    }
+    public class Jousi : Tavara 
+    { 
+        public Jousi() : base(1, 4) { }
+        public override string ToString() => "Jousi";
+    }
+    public class Köysi : Tavara 
+    { 
+        public Köysi() : base(1, 1.5) { }
+        public override string ToString() => "Köysi";
+    }
+    public class Vesi : Tavara 
+    { 
+        public Vesi() : base(2, 2) { }
+        public override string ToString() => "Vesi";
+    }
+    public class RuokaAnnos : Tavara 
+    { 
+        public RuokaAnnos() : base(1, 0.5) { }
+        public override string ToString() => "Ruokaa";
+    }
+    public class Miekka : Tavara 
+    { 
+        public Miekka() : base(5, 3) { }
+        public override string ToString() => "Miekka";
+    }
 
     public class Reppu
     {
@@ -37,7 +65,15 @@
             MaksimiTilavuus = maksimiTilavuus;
         }
 
-        
+        public override string ToString()
+        {
+            if (Tavarat.Count == 0)
+                return "Reppussa ei ole tavaroita.";
+
+            return $"Reppussa on seuraavat tavarat: {string.Join(", ", Tavarat)}";
+        }
+
+
         public bool Lisää(Tavara tavara)
         {
             // Check item count
@@ -103,6 +139,8 @@
 
             while (true)
             {
+                Console.WriteLine(pelaajanReppu);
+
                 pelaajanReppu.NäytäTiedot();
 
                 Console.WriteLine("\nMitä haluat lisätä?");
