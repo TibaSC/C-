@@ -1,0 +1,7 @@
+{
+  "Name": "Medium Shell",
+  "ExplosionSize": 5,
+  "Color": "Red",
+  "Damage": 30,
+  "Weight": 1.5
+}
