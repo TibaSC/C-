@@ -1,4 +1,9 @@
-﻿using System.Text.Json;
+﻿
+using System;
+using System.Numerics;
+using System.Runtime.CompilerServices;
+using System.Text.Json;
+using Raylib_cs;
 
 namespace ARTILLERY
 {
@@ -6,22 +11,21 @@ namespace ARTILLERY
     {
         static void Main(string[] args)
         {
-            Console.OutputEncoding = System.Text.Encoding.UTF8;
             Game game = new Game();
             game.Start();
         }
     }
     class Ammus
     {
-        public double X { get; set; }
-        public double Y { get; set; }
-        public double VelocityX { get; set; }
-        public double VelocityY { get; set; }
-        public int ExplosionSize { get; set; }
-        public string Color { get; set; }
-        public int Damage { get; set; }
-        public double Weight { get; set; }
-        public string Name { get; set; }
+        public double X ;
+        public double Y ;
+        public double VelocityX ;
+        public double VelocityY ;
+        public int ExplosionSize ;
+        public string Color ;
+        public int Damage ;
+        public double Weight ;
+        public string Name ;
 
         public Ammus() { }
 
@@ -43,16 +47,17 @@ namespace ARTILLERY
             X += VelocityX;
             Y += VelocityY;
         }
+        
     }
 
     class Tykki
     {
-        public double X { get; set; }
-        public double Y { get; set; }
-        public int Health { get; set; }
-        public double Angle { get; set; }
-        public string PlayerName { get; set; }
-        public ConsoleColor Color { get; set; }
+        public double X;
+        public double Y;
+        public int Health;
+        public double Angle;
+        public string PlayerName;
+        public Color RaylibColor;
 
         public void Move(int direction, List<TerrainBlock> terrain)
         {
@@ -68,7 +73,6 @@ namespace ARTILLERY
             }
         }
 
-        // تغيير زاوية المدفع
         public void AdjustAngle(double adjustment)
         {
             Angle += adjustment;
@@ -84,45 +88,31 @@ namespace ARTILLERY
             ammus.VelocityX = Math.Cos(Angle) * power;
             ammus.VelocityY = -Math.Sin(Angle) * power; 
 
-            Console.Beep(300, 100); 
             return ammus;
         }
-
         public void Draw()
         {
-            ConsoleColor originalColor = Console.ForegroundColor;
-            Console.ForegroundColor = Color;
+            // Draw cannon base
+            Raylib.DrawRectangle((int)X - 5, (int)Y - 5, 10, 10, RaylibColor);
 
-            Console.SetCursorPosition((int)X, (int)Y);
-            Console.Write("▀");
-
-            int barrelX = (int)(X + Math.Cos(Angle) * 2);
-            int barrelY = (int)(Y - Math.Sin(Angle) * 2);
-            if (barrelX >= 0 && barrelX < Console.WindowWidth && barrelY >= 0 && barrelY < Console.WindowHeight)
-            {
-                Console.SetCursorPosition(barrelX, barrelY);
-                Console.Write("■");
-            }
-
-            Console.ForegroundColor = originalColor;
+            // Draw cannon barrel
+            int barrelLength = 15;
+            int barrelEndX = (int)(X + Math.Cos(Angle) * barrelLength);
+            int barrelEndY = (int)(Y - Math.Sin(Angle) * barrelLength);
+            Raylib.DrawLineEx(new Vector2((float)X, (float)Y), new Vector2(barrelEndX, barrelEndY), 3, RaylibColor);
         }
+
     }
 
     class TerrainBlock
     {
-        public static int Width = 2; 
-        public int Height { get; set; }
-        public int X { get; set; }
+        public static int Width = 10; 
+        public int Height;
+        public int X;
 
         public void Draw()
         {
-            Console.SetCursorPosition(X, Height);
-            for (int i = 0; i < Width; i++)
-            {
-                Console.Write("█");
-            }
-
-
+            Raylib.DrawRectangle(X, Height, Width, Game.ScreenHeight - Height, Color.DarkGreen);
         }
 
         public bool CheckCollision(Ammus ammus)
@@ -133,15 +123,17 @@ namespace ARTILLERY
         public void Damage(int explosionSize)
         {
             Height += explosionSize / 3; 
-            if (Height >= Console.WindowHeight)
+            if (Height >= Game.ScreenHeight)
             {
-                Height = Console.WindowHeight - 1;
+                Height = Game.ScreenHeight - 1;
             }
         }
     }
 
     class Game
     {
+        public static int ScreenWidth = 800;
+        public static int ScreenHeight = 600;
         private List<Tykki> cannons = new List<Tykki>();
         private List<TerrainBlock> terrain = new List<TerrainBlock>();
         private List<Ammus> ammunitionTypes = new List<Ammus>();
@@ -151,8 +143,8 @@ namespace ARTILLERY
 
         public void Start()
         {
-            Console.CursorVisible = false;
-            Console.Clear();
+            Raylib.InitWindow(ScreenWidth, ScreenHeight, "Artillery Game");
+            Raylib.SetTargetFPS(60);
 
             LoadAmmunition();
 
@@ -161,6 +153,8 @@ namespace ARTILLERY
             AddPlayers();
 
             GameLoop();
+
+            Raylib.CloseWindow();
         }
 
         private void LoadAmmunition()
@@ -171,7 +165,7 @@ namespace ARTILLERY
                 "SmallShell.json",
                 "MediumShell.json",
                 "HeavyShell.json"
-        };
+                };
 
                 foreach (string filePath in filePaths)
                 {
@@ -184,15 +178,13 @@ namespace ARTILLERY
                     else
                     {
                         Console.WriteLine($"Warning: Ammunition file {filePath} not found.");
-                        Thread.Sleep(1000);
                     }
                 }
 
                 if (ammunitionTypes.Count == 0)
                 {
                     Console.WriteLine("No ammunition files found. Using default ammunition.");
-                    Thread.Sleep(1000);
-
+           
                     Ammus smallShell = new Ammus { Name = "Small Shell", ExplosionSize = 3, Color = "Yellow", Damage = 20, Weight = 1 };
                     Ammus mediumShell = new Ammus { Name = "Medium Shell", ExplosionSize = 5, Color = "Red", Damage = 30, Weight = 1.5 };
                     Ammus heavyShell = new Ammus { Name = "Heavy Shell", ExplosionSize = 8, Color = "Blue", Damage = 50, Weight = 2 };
@@ -205,8 +197,7 @@ namespace ARTILLERY
             catch (Exception ex)
             {
                 Console.WriteLine($"Error loading ammunition: {ex.Message}");
-                Thread.Sleep(2000);
-
+                
                 Ammus smallShell = new Ammus { Name = "Small Shell", ExplosionSize = 3, Color = "Yellow", Damage = 20, Weight = 1 };
                 Ammus mediumShell = new Ammus { Name = "Medium Shell", ExplosionSize = 5, Color = "Red", Damage = 30, Weight = 1.5 };
                 Ammus heavyShell = new Ammus { Name = "Heavy Shell", ExplosionSize = 8, Color = "Blue", Damage = 50, Weight = 2 };
@@ -215,23 +206,27 @@ namespace ARTILLERY
                 ammunitionTypes.Add(mediumShell);
                 ammunitionTypes.Add(heavyShell);
             }
+            foreach (var ammo in ammunitionTypes)
+            {
+                if (ammo.Weight < 0.5 || ammo.Weight > 5)
+                {
+                    ammo.Weight = 0.6;
+                }
+            }
         }
 
         private void GenerateTerrain()
         {
-            int width = Console.WindowWidth;
-            int height = Console.WindowHeight;
-
             Random random = new Random();
-            int lastHeight = height / 2;
+            int lastHeight = ScreenHeight / 2 + 150;
 
-            for (int x = 0; x < width; x += TerrainBlock.Width)
+            for (int x = 0; x < ScreenWidth; x += TerrainBlock.Width)
             {
                 
                 int newHeight = lastHeight + random.Next(-2, 3);
 
-                if (newHeight < height / 3) newHeight = height / 3;
-                if (newHeight > height - 5) newHeight = height - 5;
+                if (newHeight < ScreenHeight / 3) newHeight = ScreenHeight / 3;
+                if (newHeight > ScreenHeight - 5) newHeight = ScreenHeight - 5;
 
                 TerrainBlock block = new TerrainBlock
                 {
@@ -250,20 +245,20 @@ namespace ARTILLERY
 
             Tykki player1 = new Tykki
             {
-                X = random.Next(5, Console.WindowWidth / 3),
+                X = random.Next(5, ScreenWidth / 3),
                 Angle = Math.PI / 4,
                 Health = 100,
                 PlayerName = "Player 1",
-                Color = ConsoleColor.Blue
+                RaylibColor = Color.Blue
             };
 
             Tykki player2 = new Tykki
             {
-                X = random.Next(Console.WindowWidth * 2 / 3, Console.WindowWidth - 5),
+                X = random.Next(ScreenWidth * 2 / 3, ScreenWidth - 5),
                 Angle = Math.PI * 3 / 4,
                 Health = 100,
                 PlayerName = "Player 2",
-                Color = ConsoleColor.Red
+                RaylibColor = Color.Red
             };
 
             SetCannonOnTerrain(player1);
@@ -284,27 +279,31 @@ namespace ARTILLERY
 
         private void GameLoop()
         {
-            while (!gameOver)
+            while (!Raylib.WindowShouldClose() && !gameOver)
             {
-                DrawGame();
-
                 ProcessPlayerInput();
-
                 UpdateProjectile();
 
-                Thread.Sleep(50); 
+                Raylib.BeginDrawing();
+                Raylib.ClearBackground(Color.SkyBlue);
+
+                DrawGame();
+
+                Raylib.EndDrawing();
             }
+            if (gameOver)
+            {
+                ShowGameOverScreen();
+            }
+
         }
 
         private void DrawGame()
         {
-            Console.Clear();
-
             foreach (var block in terrain)
             {
                 block.Draw();
             }
-
             foreach (var cannon in cannons)
             {
                 cannon.Draw();
@@ -312,39 +311,29 @@ namespace ARTILLERY
 
             if (currentProjectile != null)
             {
-                ConsoleColor originalColor = Console.ForegroundColor;
-                switch (currentProjectile.Color.ToLower())
-                {
-                    case "red": Console.ForegroundColor = ConsoleColor.Red; break;
-                    case "blue": Console.ForegroundColor = ConsoleColor.Blue; break;
-                    case "yellow": Console.ForegroundColor = ConsoleColor.Yellow; break;
-                    default: Console.ForegroundColor = ConsoleColor.White; break;
-                }
-
                 int projX = (int)currentProjectile.X;
                 int projY = (int)currentProjectile.Y;
 
-                if (projX >= 0 && projX < Console.WindowWidth && projY >= 0 && projY < Console.WindowHeight)
+                if (projX >= 0 && projX < ScreenWidth && projY >= 0 && projY < ScreenHeight)
                 {
-                    Console.SetCursorPosition(projX, projY);
-                    Console.Write("●");
+                    Raylib.DrawCircle(projX, projY, 5, Color.Red);
                 }
-
-                Console.ForegroundColor = originalColor;
             }
 
             Tykki currentPlayer = cannons[currentPlayerIndex];
-            Console.SetCursorPosition(0, 0);
-            Console.ForegroundColor = currentPlayer.Color;
-            Console.WriteLine($"Turn: {currentPlayer.PlayerName} - Health: {currentPlayer.Health}");
-            Console.WriteLine($"Angle: {Math.Round(currentPlayer.Angle * 180 / Math.PI, 1)}°");
 
-            Console.SetCursorPosition(0, 2);
-            Console.WriteLine("Ammunition:");
+            Raylib.DrawText($"Turn: {currentPlayer.PlayerName}", 10, 10, 20, currentPlayer.RaylibColor);
+            Raylib.DrawText($"Health: {currentPlayer.Health}", 10, 40, 20, currentPlayer.RaylibColor);
+            Raylib.DrawText($"Angle: {Math.Round(currentPlayer.Angle * 180 / Math.PI, 1)}°", 10, 70, 20, Color.Black);
+
+            Raylib.DrawText("Ammunition:", 10, 110, 20, Color.Black);
             for (int i = 0; i < ammunitionTypes.Count; i++)
             {
-                Console.WriteLine($"{i + 1}. {ammunitionTypes[i].Name} (Dmg: {ammunitionTypes[i].Damage}, Exp: {ammunitionTypes[i].ExplosionSize})");
+                string ammoText = $"{i + 1}. {ammunitionTypes[i].Name} (Dmg: {ammunitionTypes[i].Damage}, Exp: {ammunitionTypes[i].ExplosionSize})";
+                Color textColor = ammunitionTypes[i].Y == -1 ? Color.Red : Color.Black;
+                Raylib.DrawText(ammoText, 10, 140 + i * 30, 20, textColor);
             }
+
         }
 
         private void ProcessPlayerInput()
@@ -353,51 +342,57 @@ namespace ARTILLERY
 
             Tykki currentPlayer = cannons[currentPlayerIndex];
 
-            if (Console.KeyAvailable)
+            if (Raylib.IsKeyPressed(KeyboardKey.Left) || Raylib.IsKeyDown(KeyboardKey.Left))
             {
-                var key = Console.ReadKey(true);
+                currentPlayer.Move(-1, terrain);
+            }
+            else if (Raylib.IsKeyPressed(KeyboardKey.Right) || Raylib.IsKeyDown(KeyboardKey.Right))
+            {
+                currentPlayer.Move(1, terrain);
+            }
 
-                switch (key.Key)
-                {
-                    case ConsoleKey.UpArrow:
-                        currentPlayer.AdjustAngle(0.1);
-                        break;
-                    case ConsoleKey.DownArrow:
-                        currentPlayer.AdjustAngle(-0.1);
-                        break;
+            if (Raylib.IsKeyPressed(KeyboardKey.Up) || Raylib.IsKeyDown(KeyboardKey.Up))
+            {
+                currentPlayer.AdjustAngle(0.05);
+            }
+            else if (Raylib.IsKeyPressed(KeyboardKey.Down) || Raylib.IsKeyDown(KeyboardKey.Down))
+            {
+                currentPlayer.AdjustAngle(-0.05);
+            }
 
-                    case ConsoleKey.LeftArrow:
-                        currentPlayer.Move(-1, terrain);
-                        break;
-                    case ConsoleKey.RightArrow:
-                        currentPlayer.Move(1, terrain);
-                        break;
+            if (Raylib.IsKeyPressed(KeyboardKey.One))
+            {
+                SelectAmmunition(0);
+            }
+            else if (Raylib.IsKeyPressed(KeyboardKey.Two))
+            {
+                SelectAmmunition(1);
+            }
+            else if (Raylib.IsKeyPressed(KeyboardKey.Three))
+            {
+                SelectAmmunition(2);
+            }
 
-                    case ConsoleKey.D1:
-                    case ConsoleKey.D2:
-                    case ConsoleKey.D3:
-                        int ammoIndex = (int)key.Key - (int)ConsoleKey.D1;
-                        if (ammoIndex >= 0 && ammoIndex < ammunitionTypes.Count)
-                        {
-                            SelectAmmunition(ammoIndex);
-                        }
-                        break;
-
-                    case ConsoleKey.Spacebar:
-                        FireCannon();
-                        break;
-                }
+            if (Raylib.IsKeyPressed(KeyboardKey.Space))
+            {
+                FireCannon();
             }
         }
 
         private void SelectAmmunition(int index)
         {
-            Console.SetCursorPosition(0, 6);
-            Console.WriteLine($"Selected: {ammunitionTypes[index].Name}      ");
-            
-            ammunitionTypes[index].Y = -1; 
-        }
+            if (index >= 0 && index < ammunitionTypes.Count)
+            {
+                // Reset all ammunition
+                foreach (var ammo in ammunitionTypes)
+                {
+                    ammo.Y = 0;
+                }
 
+                ammunitionTypes[index].Y = -1;
+            }
+        }
+            
         private void FireCannon()
         {
             Tykki currentPlayer = cannons[currentPlayerIndex];
@@ -420,8 +415,8 @@ namespace ARTILLERY
 
             currentProjectile.Update();
 
-            if (currentProjectile.X < 0 || currentProjectile.X >= Console.WindowWidth ||
-                currentProjectile.Y >= Console.WindowHeight)
+            if (currentProjectile.X < 0 || currentProjectile.X >= ScreenWidth ||
+                currentProjectile.Y >= ScreenHeight)
             {
                 EndTurn();
                 return;
@@ -432,7 +427,7 @@ namespace ARTILLERY
             {
                 if (terrain[terrainIndex].CheckCollision(currentProjectile))
                 {
-                    Console.Beep(150, 100);
+                    //Raylib.PlaySound(explosionsSound);
 
                     DamageTerrain(terrainIndex, currentProjectile.ExplosionSize);
 
@@ -443,6 +438,8 @@ namespace ARTILLERY
                 }
             }
         }
+
+
 
         private void DamageTerrain(int centerIndex, int explosionSize)
         {
@@ -471,9 +468,9 @@ namespace ARTILLERY
                     Math.Pow(cannon.Y - currentProjectile.Y, 2)
                 );
 
-                if (distance <= currentProjectile.ExplosionSize)
+                if (distance <= currentProjectile.ExplosionSize *5)
                 {
-                    int damage = (int)(currentProjectile.Damage * (1 - distance / currentProjectile.ExplosionSize));
+                    int damage = (int)(currentProjectile.Damage * (1 - distance / currentProjectile.ExplosionSize *5));
                     cannon.Health -= damage;
 
                     if (cannon.Health <= 0)
@@ -519,25 +516,50 @@ namespace ARTILLERY
             if (playersAlive <= 1)
             {
                 gameOver = true;
+            }
+        }
+        private void ShowGameOverScreen()
+        {
+            int playersAlive = 0;
+            int lastAliveIndex = -1;
 
-                Console.Clear();
-                Console.ForegroundColor = ConsoleColor.Green;
-                Console.SetCursorPosition(Console.WindowWidth / 2 - 10, Console.WindowHeight / 2);
-
-                if (playersAlive == 1)
+            for (int i = 0; i < cannons.Count; i++)
+            {
+                if (cannons[i].Health > 0)
                 {
-                    Console.WriteLine($"{cannons[lastAliveIndex].PlayerName} WINS!");
-                    
-                    Console.Beep(523, 100);
-                    Console.Beep(659, 100);
-                    Console.Beep(784, 300);
+                    playersAlive++;
+                    lastAliveIndex = i;
                 }
-                else
-                {
-                    Console.WriteLine("DRAW GAME!");
-                }
+            }
 
-                Console.ReadKey();
+            string gameOverText;
+            Color textColor;
+
+            if (playersAlive == 1)
+            {
+                gameOverText = $"{cannons[lastAliveIndex].PlayerName} WINS!";
+                textColor = cannons[lastAliveIndex].RaylibColor;
+            }
+            else
+            {
+                gameOverText = "DRAW GAME!";
+                textColor = Color.Green;
+            }
+
+            for (int i = 0; i < 180; i++)
+            {
+                if (Raylib.WindowShouldClose()) break;
+
+                Raylib.BeginDrawing();
+                Raylib.ClearBackground(Color.Black);
+
+                int textWidth = Raylib.MeasureText(gameOverText, 40);
+                Raylib.DrawText(gameOverText, ScreenWidth / 2 - textWidth / 2, ScreenHeight / 2 - 20, 40, textColor);
+                Raylib.DrawText("Press ESC to exit", ScreenWidth / 2 - 100, ScreenHeight / 2 + 40, 20, Color.White);
+
+                Raylib.EndDrawing();
+
+                if (Raylib.IsKeyPressed(KeyboardKey.Escape)) break;
             }
         }
     }
