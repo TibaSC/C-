@@ -26,7 +26,7 @@ namespace ARTILLERY
 
         public void Damage(int explosionSize)
         {
-            Height += explosionSize * 3; 
+            Height += explosionSize; 
             if (Height >= Game.ScreenHeight)
             {
                 Height = Game.ScreenHeight - 1;

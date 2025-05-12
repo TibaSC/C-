@@ -1,6 +1,6 @@
 {
   "Name": "Heavy Shell",
-  "ExplosionSize": 8,
+  "ExplosionSize": 7,
   "Color": "Blue",
   "Damage": 50,
   "Weight": 2.0

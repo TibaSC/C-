@@ -70,7 +70,7 @@ namespace ARTILLERY
 
                 Ammus smallShell = new Ammus (name: "Small Shell", explosionSize: 3, color : Color.Yellow, damage : 20, weight : 1);
                 Ammus mediumShell = new Ammus (name : "Medium Shell", explosionSize : 5, color : Color.Red, damage : 30, weight : 1.5f );
-                Ammus heavyShell = new Ammus ( name : "Heavy Shell", explosionSize : 8, color : Color.Blue, damage : 50, weight : 2 );
+                Ammus heavyShell = new Ammus ( name : "Heavy Shell", explosionSize : 7, color : Color.Blue, damage : 50, weight : 2 );
 
                 ammunitionTypes.Add(smallShell);
                 ammunitionTypes.Add(mediumShell);
@@ -315,7 +315,7 @@ namespace ARTILLERY
 
                 if (distance <= currentProjectile.ExplosionSize * 5)
                 {
-                    int damage = (int)(currentProjectile.Damage * (1 - distance / currentProjectile.ExplosionSize * 5));
+                    int damage = (int)(currentProjectile.Damage);
                     cannon.Health -= damage;
 
                     if (cannon.Health <= 0)
