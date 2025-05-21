@@ -2,7 +2,14 @@
 
 namespace ASTEROIDS
 {
+    public enum GameState
+    {
+        MainMenu,
+        Game,
+        LoseScreen,
+        QuitGame
 
+    }
     class Program
     {
         static void Main(string[] args)
@@ -12,11 +19,28 @@ namespace ASTEROIDS
             Raylib.SetTargetFPS(60);
 
             Game game = new Game();
-
-            while (!Raylib.WindowShouldClose())
+            bool gameIsRunning = true;
+            while (!Raylib.WindowShouldClose() && gameIsRunning)
             {
-                game.Update();
-                game.Draw();
+                switch (game.state)
+                {
+                    case GameState.MainMenu:
+                        
+                        game.DrawMainMenu(); 
+                        break;
+
+                    case GameState.Game:
+                        game.Update();
+                        game.Draw();
+                        break;
+
+                    case GameState.LoseScreen:
+                        game.DrawLoseScreen();
+                        break;
+                    case GameState.QuitGame:
+                        gameIsRunning = false; 
+                        break;
+                }
             }
             game.CleanUp();
             Raylib.CloseWindow();

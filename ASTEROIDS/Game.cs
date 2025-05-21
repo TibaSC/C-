@@ -1,4 +1,5 @@
 ﻿using Raylib_cs;
+using RayGuiCreator;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -14,14 +15,15 @@ namespace ASTEROIDS
         private int level = 1;
         private Random random = new Random();
         private bool gameOver = false;
-
+        public GameState state = GameState.MainMenu;
         public Game()
         {
-            InitGame();
+            
         }
 
         private void InitGame()
         {
+            
             AssetManager.LoadAssets();
 
             player = new Player(
@@ -58,6 +60,7 @@ namespace ASTEROIDS
                 Vector2 position;
                 do
                 {
+                    //the enemies position, 50 from each corner + it checks if its 50 near the player
                     position = new Vector2(
                         random.Next(50, Raylib.GetScreenWidth() - 50),
                         random.Next(50, Raylib.GetScreenHeight() - 50)
@@ -85,11 +88,7 @@ namespace ASTEROIDS
 
         public void Update()
         {
-            if (gameOver && Raylib.IsKeyPressed(KeyboardKey.Enter))
-            {
-                InitGame();
-                return;
-            }
+            
 
             if (!gameOver)
             {
@@ -188,6 +187,7 @@ namespace ASTEROIDS
                         if (player.Lives <= 0)
                         {
                             gameOver = true;
+                            state = GameState.LoseScreen;
                         }
                         else
                         {
@@ -236,17 +236,36 @@ namespace ASTEROIDS
                 }
             }
         }
+        public void DrawMainMenu()
+        {
+            Raylib.BeginDrawing();
+            Raylib.ClearBackground(Color.Black);
+            int buttonW= 200;
+            int buttonH= 100;
+            int buttonX= 300;
+            int buttonY = 300;
 
+            Raylib.DrawText("ASTEROIDS", buttonX-50, buttonY-100, 50, Color.White);
+            MenuCreator mainMenu = new MenuCreator(buttonX, buttonY,16, buttonW);
+            if(mainMenu.Button("Start Game"))
+            {
+                state = GameState.Game;
+                InitGame();
+            }
+            if (mainMenu.Button("Quit"))
+            {
+                state= GameState.QuitGame;
+
+            }
+            Raylib.EndDrawing();
+
+        }
         public void Draw()
         {
             Raylib.BeginDrawing();
             Raylib.ClearBackground(Color.Black);
-
-            // Draw game elements
-            if (!gameOver)
-            {
-                // Draw player
-                player.Draw();
+            // Draw player
+            player.Draw();
 
                 // Draw asteroids
                 foreach (var asteroid in asteroids)
@@ -268,41 +287,47 @@ namespace ASTEROIDS
                 Raylib.DrawText($"Score: {score}", 10, 10, 20, Color.White);
                 Raylib.DrawText($"Level: {level}", 10, 40, 20, Color.White);
                 Raylib.DrawText($"Lives: {player.Lives}", 10, 70, 20, Color.White);
-            }
-            else
+                Raylib.EndDrawing();
+
+
+        }
+        public void DrawLoseScreen()
+        {
+            // Draw game over scree
+            Raylib.BeginDrawing();
+            Raylib.ClearBackground(Color.Black);
+            string gameOverText = "GAME OVER";
+            int textWidth = Raylib.MeasureText(gameOverText, 50);
+            Raylib.DrawText(
+                gameOverText,
+                Raylib.GetScreenWidth() / 2 - textWidth / 2,
+                Raylib.GetScreenHeight() / 2 - 50,
+                50,
+                Color.Red
+            );
+
+            string scoreText = $"Final Score: {score}";
+            int scoreWidth = Raylib.MeasureText(scoreText, 30);
+            Raylib.DrawText(
+                scoreText,
+                Raylib.GetScreenWidth() / 2 - scoreWidth / 2,
+                Raylib.GetScreenHeight() / 2 + 10,
+                30,
+                Color.White
+            );
+
+            string restartText = "Press ENTER to restart";
+            int restartWidth = Raylib.MeasureText(restartText, 20);
+            Raylib.DrawText(
+                restartText,
+                Raylib.GetScreenWidth() / 2 - restartWidth / 2,
+                Raylib.GetScreenHeight() / 2 + 60,
+                20,
+                Color.White);
+            if (Raylib.IsKeyPressed(KeyboardKey.Enter))
             {
-                // Draw game over screen
-                string gameOverText = "GAME OVER";
-                int textWidth = Raylib.MeasureText(gameOverText, 50);
-                Raylib.DrawText(
-                    gameOverText,
-                    Raylib.GetScreenWidth() / 2 - textWidth / 2,
-                    Raylib.GetScreenHeight() / 2 - 50,
-                    50,
-                    Color.Red
-                );
-
-                string scoreText = $"Final Score: {score}";
-                int scoreWidth = Raylib.MeasureText(scoreText, 30);
-                Raylib.DrawText(
-                    scoreText,
-                    Raylib.GetScreenWidth() / 2 - scoreWidth / 2,
-                    Raylib.GetScreenHeight() / 2 + 10,
-                    30,
-                    Color.White
-                );
-
-                string restartText = "Press ENTER to restart";
-                int restartWidth = Raylib.MeasureText(restartText, 20);
-                Raylib.DrawText(
-                    restartText,
-                    Raylib.GetScreenWidth() / 2 - restartWidth / 2,
-                    Raylib.GetScreenHeight() / 2 + 60,
-                    20,
-                    Color.White
-                );
+                state = GameState.MainMenu;
             }
-
             Raylib.EndDrawing();
         }
         public void CleanUp()
